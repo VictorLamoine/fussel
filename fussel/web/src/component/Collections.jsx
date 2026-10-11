@@ -15,12 +15,36 @@ class Collections extends Component {
   }
 
   generateCards = (collectionType, subjects) => {
+    const keys = Object.keys(subjects);
+
+    if (collectionType === "albums") {
+      const oldestPhotoDate = (album) => {
+        const dates = album.photos
+          .map(photo => photo.date ? Date.parse(photo.date) : NaN)
+          .filter(date => Number.isFinite(date));
+
+        return dates.length ? Math.min(...dates) : null;
+      };
+
+      keys.sort((a, b) => {
+        const dateA = oldestPhotoDate(subjects[a]);
+        const dateB = oldestPhotoDate(subjects[b]);
+
+        if (dateA === null) return dateB === null ? 0 : 1;
+        if (dateB === null) return -1;
+
+        return dateB - dateA;
+      });
+    }
+
     return (
       <div className="columns is-multiline">
-        {Object.keys(subjects).map(subject => { return this.generateCard(collectionType, subjects[subject]) })}
+        {keys.map(subject =>
+          this.generateCard(collectionType, subjects[subject])
+        )}
       </div>
-    )
-  }
+    );
+  };
 
   generateCard = (collectionType, subject) => {
     return (
